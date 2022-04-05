@@ -1,6 +1,7 @@
 package com.example.poatenumergi.model;
 
 import com.sun.istack.NotNull;
+import lombok.Getter;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
+@Getter
 public abstract class User {
 
     @Column(unique = true,nullable = false)

@@ -8,6 +8,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CustomerOperationsService {
@@ -32,6 +34,15 @@ public class CustomerOperationsService {
         else{
             return validityOfCustomerData;
         }
+    }
+    public CustomerDTO getCustomerwithUserAndPass(String username,String password){
+        Optional<Customer> customer=customerDatabaseOperations.findByUsername(username);
+        if(customer.isPresent()){
+            if(customer.get().getPassword().equals(password)){
+                return accountsMapper.fromCustomertoDTO(customer.get());
+            }
+        }
+        return null;
     }
 
 

@@ -31,6 +31,9 @@ public class RestaurantRelatedObjectsMapper {
        Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByName(foodDTO.getRestaurantName());
         return restaurant.map(value -> new Food(foodDTO.getName(), FoodCategory.valueOf(foodDTO.getCategory()), value)).orElse(null);
     }
+    public FoodDTO toFoodDTO(Food food){
+        return new FoodDTO(food.getName(),food.getCategory().getCode(),food.getRestaurant().getName());
+    }
 
 
 }

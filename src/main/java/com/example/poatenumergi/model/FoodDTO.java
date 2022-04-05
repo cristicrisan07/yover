@@ -10,9 +10,9 @@ import javax.persistence.Id;
 @Data
 public class FoodDTO {
 
-    private String name;
-    private String category;
-    private String restaurantName;
+    private final String name;
+    private final String category;
+    private final String restaurantName;
 
 
 }

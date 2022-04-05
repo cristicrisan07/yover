@@ -3,14 +3,16 @@ package com.example.poatenumergi.model;
 
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name="food")
+@Table(name="restaurant")
 @NoArgsConstructor
+@Getter
 public class Restaurant {
     @Id
     @GeneratedValue

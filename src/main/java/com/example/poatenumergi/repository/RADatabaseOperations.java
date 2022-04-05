@@ -16,6 +16,5 @@ public interface RADatabaseOperations extends CrudRepository<RestaurantAdministr
     DeliveryZone findDeliveryZoneByname(String name);
     Optional<RestaurantAdministrator> findByUsername(String username);
     Optional<RestaurantAdministrator> findByEmail(String email);
-    @Query(value = "SELECT u from Restaurant u where u.name=?1")
-    Optional<Restaurant> findRestaurantByname(String name);
+
 }

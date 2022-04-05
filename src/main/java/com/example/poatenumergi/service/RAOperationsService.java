@@ -8,6 +8,10 @@ import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class RAOperationsService {
@@ -37,7 +41,7 @@ public class RAOperationsService {
         }
     }
     public String addRestaurant(RestaurantDTO restaurantDTO){
-            if(RADatabaseOperations.findRestaurantByname(restaurantDTO.getName()).isPresent()){
+            if(restaurantDatabaseOperations.findByName(restaurantDTO.getName()).isPresent()){
                 return "This restaurant name already exists.";
             }
             else{
@@ -55,5 +59,23 @@ public class RAOperationsService {
                return "Internal server error. Contact support!";
            }
     }
+    public List<FoodDTO> getFoodWithKnownRestaurantAndCategory(String restaurantName, String foodCategory){
+        Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByName(restaurantName);
+        if(restaurant.isPresent()) {
+            Optional<List<Food>> foodList=foodDatabaseOperations.findAllByRestaurantAndCategory(restaurant.get(),FoodCategory.valueOf(foodCategory));
+            return foodList.map(foods -> foods.stream().map(restaurantRelatedObjectsMapper::toFoodDTO).toList()).orElse(null);
+        }
+        else return null;
+    }
+    public RestaurantAdministratorDTO getRAwithUserAndPass(String username,String password){
+        Optional<RestaurantAdministrator> RA=RADatabaseOperations.findByUsername(username);
+        if(RA.isPresent()){
+            if(RA.get().getPassword().equals(password)){
+                return accountsMapper.fromRAtoDTO(RA.get());
+            }
+        }
+        return null;
+    }
+
 
 }

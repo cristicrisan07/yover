@@ -1,6 +1,7 @@
 package com.example.poatenumergi.model;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name="food")
 @NoArgsConstructor
+@Getter
 public class Food {
 
     @Id

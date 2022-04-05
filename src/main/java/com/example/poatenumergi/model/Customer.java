@@ -1,11 +1,13 @@
 package com.example.poatenumergi.model;
 
 import lombok.Data;
+import lombok.Getter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name="customer")
+@Getter
 public class Customer extends User{
 
     @Id
