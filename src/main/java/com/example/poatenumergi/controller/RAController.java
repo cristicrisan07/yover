@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,6 +64,24 @@ public class RAController {
             return ResponseEntity.status(httpStatus).body(new RestaurantAdministratorDTO("","",""));
         }
         return ResponseEntity.status(httpStatus).body(RA);
+    }
+    @GetMapping("/getRestaurantByAdminUsername/{username}")
+    public  ResponseEntity<RestaurantDTO> getRestaurantByAdmin(@PathVariable String username){
+        RestaurantDTO restaurantDTO=RAOperationsService.getRestaurantByAdminUsername(username);
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(Objects.equals(restaurantDTO.getName(), "")){
+            httpStatus=HttpStatus.NOT_ACCEPTABLE;
+        }
+        return  ResponseEntity.status(httpStatus).body(restaurantDTO);
+    }
+    @GetMapping("/getDeliveryLocations")
+    public  ResponseEntity<List<String>> getFoodsWith(){
+        List<String> deliveryZones=RAOperationsService.getDeliveryZones();
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(deliveryZones.isEmpty()){
+            httpStatus=HttpStatus.NOT_ACCEPTABLE;
+        }
+        return  ResponseEntity.status(httpStatus).body(deliveryZones);
     }
 
 

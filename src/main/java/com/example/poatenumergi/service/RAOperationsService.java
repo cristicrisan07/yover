@@ -8,9 +8,11 @@ import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +78,18 @@ public class RAOperationsService {
         }
         return null;
     }
-
+    public RestaurantDTO getRestaurantByAdminUsername(String username){
+        Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByRestaurantAdministratorUsername(username);
+        if(restaurant.isPresent()){
+            return  restaurantRelatedObjectsMapper.fromRestaurantToDTO(restaurant.get());
+        }
+        else{
+            return new RestaurantDTO("","",new HashSet<>(),"");
+        }
+    }
+    public List<String> getDeliveryZones(){
+        Optional<List<DeliveryZone>> deliveryZones=RADatabaseOperations.findAllDeliveryZones();
+        return deliveryZones.map(zones -> zones.stream().map(DeliveryZone::getName).collect(Collectors.toList())).orElse(null);
+    }
 
 }

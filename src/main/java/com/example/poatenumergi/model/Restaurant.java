@@ -26,10 +26,15 @@ public class Restaurant {
             joinColumns = @JoinColumn(name="restaurant_id"),
             inverseJoinColumns = @JoinColumn(name="location_id"))
     Set<DeliveryZone> deliveryZones;
+    @OneToOne
+    @JoinColumn(name = "administrator_username",referencedColumnName = "username")
+    private RestaurantAdministrator restaurantAdministrator;
 
-    public Restaurant(String name,String location,Set<DeliveryZone> deliveryZones){
+
+    public Restaurant(String name,String location,Set<DeliveryZone> deliveryZones,RestaurantAdministrator restaurantAdministrator){
         this.name=name;
         this.location=location;
         this.deliveryZones=deliveryZones;
+        this.restaurantAdministrator=restaurantAdministrator;
     }
 }
