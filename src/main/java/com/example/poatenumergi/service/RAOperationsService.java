@@ -8,10 +8,7 @@ import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,6 +66,14 @@ public class RAOperationsService {
         }
         else return null;
     }
+    public List<FoodDTO> getFoodFromRestaurant(String restaurantName){
+        Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByName(restaurantName);
+        if(restaurant.isPresent()) {
+            Optional<List<Food>> foodList=foodDatabaseOperations.findAllByRestaurant(restaurant.get());
+            return foodList.map(foods -> foods.stream().map(restaurantRelatedObjectsMapper::toFoodDTO).toList()).orElse(null);
+        }
+        else return null;
+    }
     public RestaurantAdministratorDTO getRAwithUserAndPass(String username,String password){
         Optional<RestaurantAdministrator> RA=RADatabaseOperations.findByUsername(username);
         if(RA.isPresent()){
@@ -90,6 +95,10 @@ public class RAOperationsService {
     public List<String> getDeliveryZones(){
         Optional<List<DeliveryZone>> deliveryZones=RADatabaseOperations.findAllDeliveryZones();
         return deliveryZones.map(zones -> zones.stream().map(DeliveryZone::getName).collect(Collectors.toList())).orElse(null);
+    }
+    public List<String> getFoodCategories(){
+      return Arrays.stream(FoodCategory.values()).map(FoodCategory::getCode).toList();
+
     }
 
 }

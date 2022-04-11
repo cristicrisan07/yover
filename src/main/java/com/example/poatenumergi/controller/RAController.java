@@ -34,6 +34,7 @@ public class RAController {
     }
     @PostMapping("/addFood")
     public  ResponseEntity<String> insertFood(@RequestBody FoodDTO foodDTO){
+        System.out.println(foodDTO.getName()+" "+foodDTO.getCategory() +" "+foodDTO.getRestaurantName());
         String status=RAOperationsService.addFood(foodDTO);
         HttpStatus httpStatus=HttpStatus.OK;
         if(!status.equals("Food added successfully.")){
@@ -42,7 +43,7 @@ public class RAController {
         return  ResponseEntity.status(httpStatus).body(status);
     }
     @GetMapping("/getFood/{restaurantName}/{foodCategory}")
-    public  ResponseEntity<String> getFoodsWith(@PathVariable String restaurantName,@PathVariable String foodCategory){
+    public  ResponseEntity<String> getFoodFromResWithCategory(@PathVariable String restaurantName,@PathVariable String foodCategory){
         List<FoodDTO> results =RAOperationsService.getFoodWithKnownRestaurantAndCategory(restaurantName,foodCategory);
         HttpStatus httpStatus=HttpStatus.OK;
         String status="Good food ahead.";
@@ -54,6 +55,19 @@ public class RAController {
 //            results.stream().map(FoodDTO::getName).forEach(System.out::println);
 //        }
         return  ResponseEntity.status(httpStatus).body(status);
+    }
+    @GetMapping("/getFood/{restaurantName}")
+    public  ResponseEntity<List<FoodDTO>> getAllFoodFromRes(@PathVariable String restaurantName){
+        List<FoodDTO> results =RAOperationsService.getFoodFromRestaurant(restaurantName);
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(results.isEmpty()){
+            httpStatus=HttpStatus.NOT_ACCEPTABLE;
+             ArrayList<FoodDTO> notFound= new ArrayList<>();
+             notFound.add(new FoodDTO("","",""));
+             return  ResponseEntity.status(httpStatus).body(notFound);
+        }
+
+        return  ResponseEntity.status(httpStatus).body(results);
     }
     @GetMapping("/loginRA/{username}/{password}")
     public ResponseEntity<RestaurantAdministratorDTO> login(@PathVariable String username,@PathVariable String password){
@@ -82,6 +96,15 @@ public class RAController {
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
         }
         return  ResponseEntity.status(httpStatus).body(deliveryZones);
+    }
+    @GetMapping("/getFoodCategories")
+    public  ResponseEntity<List<String>> getFoodCategories(){
+        List<String> foodCategories=RAOperationsService.getFoodCategories();
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(foodCategories.isEmpty()){
+            httpStatus=HttpStatus.NOT_ACCEPTABLE;
+        }
+        return  ResponseEntity.status(httpStatus).body(foodCategories);
     }
 
 

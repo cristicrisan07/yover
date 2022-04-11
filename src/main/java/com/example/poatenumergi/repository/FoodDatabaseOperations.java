@@ -13,4 +13,5 @@ import java.util.Set;
 @Repository
 public interface FoodDatabaseOperations extends CrudRepository<Food,Long> {
     Optional<List<Food>> findAllByRestaurantAndCategory(Restaurant restaurant, FoodCategory foodCategory);
+    Optional<List<Food>> findAllByRestaurant(Restaurant restaurant);
 }
