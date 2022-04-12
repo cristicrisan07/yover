@@ -1,21 +1,27 @@
 package com.example.poatenumergi.service;
 
-import com.example.poatenumergi.model.Customer;
-import com.example.poatenumergi.model.CustomerDTO;
+import com.example.poatenumergi.model.*;
 import com.example.poatenumergi.repository.CustomerDatabaseOperations;
+import com.example.poatenumergi.repository.RADatabaseOperations;
+import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerOperationsService {
 
     private final CustomerDatabaseOperations customerDatabaseOperations;
+    private final RestaurantDatabaseOperations restaurantDatabaseOperations;
     private final AccountsMapper accountsMapper;
+    private final RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
 
     public String createCustomer(CustomerDTO customerDTO){
         String validityOfCustomerData=AccountsValidator.isCustomerAccountValid(customerDTO);
@@ -43,6 +49,12 @@ public class CustomerOperationsService {
             }
         }
         return null;
+    }
+    public List<RestaurantDTO> getRestaurants(){
+        Iterable<Restaurant> restaurants= restaurantDatabaseOperations.findAll();
+        ArrayList<Restaurant>  restaurantArrayList=new ArrayList<>();
+        restaurants.forEach(restaurantArrayList::add);
+        return restaurantArrayList.stream().map(restaurantRelatedObjectsMapper::fromRestaurantToDTO).toList();
     }
 
 

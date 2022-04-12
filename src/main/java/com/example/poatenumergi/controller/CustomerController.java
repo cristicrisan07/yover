@@ -2,11 +2,14 @@ package com.example.poatenumergi.controller;
 
 import com.example.poatenumergi.model.CustomerDTO;
 import com.example.poatenumergi.model.RestaurantAdministratorDTO;
+import com.example.poatenumergi.model.RestaurantDTO;
 import com.example.poatenumergi.service.CustomerOperationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,5 +37,14 @@ public class CustomerController {
             return ResponseEntity.status(httpStatus).body(new CustomerDTO("","","","",""));
         }
         return ResponseEntity.status(httpStatus).body(customerDTO);
+    }
+    @GetMapping("/getRestaurants")
+    public  ResponseEntity<List<RestaurantDTO>> getAllRestaurants(){
+        List<RestaurantDTO> restaurants=customerOperationsService.getRestaurants();
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(restaurants.isEmpty()){
+            httpStatus=HttpStatus.NOT_ACCEPTABLE;
+        }
+        return  ResponseEntity.status(httpStatus).body(restaurants);
     }
 }

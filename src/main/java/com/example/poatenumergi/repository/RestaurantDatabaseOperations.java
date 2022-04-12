@@ -1,7 +1,6 @@
 package com.example.poatenumergi.repository;
 
 import com.example.poatenumergi.model.Restaurant;
-import com.example.poatenumergi.model.RestaurantAdministrator;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +12,5 @@ public interface RestaurantDatabaseOperations extends CrudRepository<Restaurant,
     Optional<Restaurant> findByName(String name);
     @Query(value = "SELECT u from Restaurant u where u.restaurantAdministrator.username=?1")
     Optional<Restaurant> findByRestaurantAdministratorUsername(String username);
+    Iterable<Restaurant> findAll();
 }
