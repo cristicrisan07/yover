@@ -1,6 +1,7 @@
 package com.example.poatenumergi.controller;
 
 import com.example.poatenumergi.model.*;
+import com.example.poatenumergi.service.PasswordManager;
 import com.example.poatenumergi.service.RAOperationsService;
 import com.fasterxml.jackson.core.JsonEncoding;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +14,12 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 public class RAController {
+    private final String secretKey = "JHKLXABYZC!!!!";
     private final RAOperationsService RAOperationsService;
     @PostMapping("/addRA")
-    public ResponseEntity<String> insertRA(@RequestBody RestaurantAdministratorDTO RestaurantAdministratorDTO) {
-        String status = RAOperationsService.createRA(RestaurantAdministratorDTO);
+    public ResponseEntity<String> insertRA(@RequestBody RestaurantAdministratorDTO restaurantAdministratorDTO) {
+        RestaurantAdministratorDTO RAwithEncryptedpassword=new RestaurantAdministratorDTO(restaurantAdministratorDTO.getUsername(), restaurantAdministratorDTO.getEmail(), PasswordManager.encrypt(restaurantAdministratorDTO.getPassword(),secretKey));
+        String status = RAOperationsService.createRA(RAwithEncryptedpassword);
         HttpStatus httpStatus = HttpStatus.OK;
         if (!status.equals("The account has been successfully created.")) {
            httpStatus= HttpStatus.NOT_ACCEPTABLE;

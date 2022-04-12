@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ public class CustomerOperationsService {
     private final RestaurantDatabaseOperations restaurantDatabaseOperations;
     private final AccountsMapper accountsMapper;
     private final RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
+    private final String secretKey = "JHKLXABYZC!!!!";
 
     public String createCustomer(CustomerDTO customerDTO){
         String validityOfCustomerData=AccountsValidator.isCustomerAccountValid(customerDTO);
@@ -44,7 +46,7 @@ public class CustomerOperationsService {
     public CustomerDTO getCustomerwithUserAndPass(String username,String password){
         Optional<Customer> customer=customerDatabaseOperations.findByUsername(username);
         if(customer.isPresent()){
-            if(customer.get().getPassword().equals(password)){
+            if(Objects.equals(PasswordManager.decrypt(customer.get().getPassword(), secretKey), password)){
                 return accountsMapper.fromCustomertoDTO(customer.get());
             }
         }

@@ -1,9 +1,9 @@
 package com.example.poatenumergi.controller;
 
 import com.example.poatenumergi.model.CustomerDTO;
-import com.example.poatenumergi.model.RestaurantAdministratorDTO;
 import com.example.poatenumergi.model.RestaurantDTO;
 import com.example.poatenumergi.service.CustomerOperationsService;
+import com.example.poatenumergi.service.PasswordManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerController {
     private final CustomerOperationsService customerOperationsService;
-
+    private final String secretKey = "JHKLXABYZC!!!!";
     @PostMapping("/addCustomer")
     public ResponseEntity<String> insertCustomer(@RequestBody CustomerDTO customerDTO) {
-
-        System.out.println(customerDTO.getUsername() + " " + customerDTO.getEmail() + " " + customerDTO.getPassword() + " " + customerDTO.getFirstName() + " " + customerDTO.getLastName());
-        String status = customerOperationsService.createCustomer(customerDTO);
+        CustomerDTO encryptedPasswordCustomer=new CustomerDTO(customerDTO.getUsername(),customerDTO.getEmail(), PasswordManager.encrypt(customerDTO.getPassword(),secretKey),customerDTO.getFirstName(), customerDTO.getLastName());
+        String status = customerOperationsService.createCustomer(encryptedPasswordCustomer);
         HttpStatus httpStatus = HttpStatus.OK;
         if (!status.equals("The account has been successfully created.")) {
             httpStatus = HttpStatus.NOT_ACCEPTABLE;

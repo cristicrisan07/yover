@@ -1,6 +1,7 @@
 package com.example.poatenumergi.model;
 
 import lombok.Data;
+import lombok.Setter;
 
 @Data
 public class RestaurantAdministratorDTO {

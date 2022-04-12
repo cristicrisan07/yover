@@ -20,6 +20,8 @@ public class RAOperationsService {
     private final AccountsMapper accountsMapper;
     private final RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
     private final FoodDatabaseOperations foodDatabaseOperations;
+    private final String secretKey = "JHKLXABYZC!!!!";
+
     public String createRA(RestaurantAdministratorDTO restaurantAdministratorDTO){
 
         String validityOfRAdata=AccountsValidator.isRAAccountValid(restaurantAdministratorDTO);
@@ -77,7 +79,7 @@ public class RAOperationsService {
     public RestaurantAdministratorDTO getRAwithUserAndPass(String username,String password){
         Optional<RestaurantAdministrator> RA=RADatabaseOperations.findByUsername(username);
         if(RA.isPresent()){
-            if(RA.get().getPassword().equals(password)){
+            if(Objects.equals(PasswordManager.decrypt(RA.get().getPassword(), secretKey), password)){
                 return accountsMapper.fromRAtoDTO(RA.get());
             }
         }
