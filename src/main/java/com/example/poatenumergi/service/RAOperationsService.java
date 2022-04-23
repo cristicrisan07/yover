@@ -2,10 +2,14 @@ package com.example.poatenumergi.service;
 
 
 import com.example.poatenumergi.model.*;
+import com.example.poatenumergi.repository.CustomerDatabaseOperations;
 import com.example.poatenumergi.repository.FoodDatabaseOperations;
 import com.example.poatenumergi.repository.RADatabaseOperations;
 import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,7 +24,23 @@ public class RAOperationsService {
     private final AccountsMapper accountsMapper;
     private final RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
     private final FoodDatabaseOperations foodDatabaseOperations;
+    private final CustomerDatabaseOperations customerDatabaseOperations;
     private final String secretKey = "JHKLXABYZC!!!!";
+
+    @Autowired
+    private JavaMailSender emailSender;
+
+    public void sendSimpleMessage(
+            String to, String subject, String text) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("noreply@yoverapp.com");
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+        emailSender.send(message);
+
+    }
 
     public String createRA(RestaurantAdministratorDTO restaurantAdministratorDTO){
 
@@ -101,6 +121,12 @@ public class RAOperationsService {
     public List<String> getFoodCategories(){
       return Arrays.stream(FoodCategory.values()).map(FoodCategory::getCode).toList();
 
+    }
+    public List<CustomerDTO> getAllCustomers(){
+        Iterable<Customer> customers= customerDatabaseOperations.findAll();
+        ArrayList<Customer>  customerArrayList=new ArrayList<>();
+        customers.forEach(customerArrayList::add);
+        return customerArrayList.stream().map(accountsMapper::fromCustomertoDTO).toList();
     }
 
 }

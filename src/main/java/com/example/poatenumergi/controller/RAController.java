@@ -1,14 +1,25 @@
 package com.example.poatenumergi.controller;
 
 import com.example.poatenumergi.model.*;
+import com.example.poatenumergi.service.PDFCreator;
 import com.example.poatenumergi.service.PasswordManager;
 import com.example.poatenumergi.service.RAOperationsService;
 import com.fasterxml.jackson.core.JsonEncoding;
+import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
@@ -109,6 +120,57 @@ public class RAController {
         }
         return  ResponseEntity.status(httpStatus).body(foodCategories);
     }
+    @GetMapping("/createPDFMenuFor/{restaurant}")
+    public  ResponseEntity<?> createPDFMenuFor(@PathVariable String restaurant) throws IOException {
+        List<FoodDTO> results =RAOperationsService.getFoodFromRestaurant(restaurant);
+        String stat=PDFCreator.menuToPDF(restaurant + "_menu",results);
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(!stat.equals("Success")){
+            httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
+            return ResponseEntity.status(httpStatus).body(stat);
+        }
+
+            RAOperationsService.sendSimpleMessage("agletlaces@gmail.com","testMessage","papa bun de la vericu pwp varule.");
+
+        File fileToSend=new File(restaurant+"_menu.pdf");
+//       HttpHeaders httpHeaders=new HttpHeaders();
+//       httpHeaders.add("Content-Type","application/octet-stream");
+//       httpHeaders.add("Content-Disposition","attachment; filename=\""+fileToSend.getName()+"\"");
+//
+//        return  ResponseEntity.status(httpStatus).headers(httpHeaders).contentLength(fileToSend.length()).body(fileToSend);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type","application/octet-stream");
+        headers.add("Content-Disposition","attachment; filename=\""+fileToSend.getName()+"\"");
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        Path path = Paths.get(fileToSend.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(fileToSend.length())
+             //   .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+    @GetMapping("/sendAdvertisingEmails/{restaurantName}")
+    public  ResponseEntity<String> sendEmails(@PathVariable String restaurantName){
+        List<CustomerDTO> customerDTOS= RAOperationsService.getAllCustomers();
+        HttpStatus httpStatus=HttpStatus.OK;
+        if(customerDTOS.isEmpty()){
+            httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
+            return  ResponseEntity.status(httpStatus).body("Could not fetch the customers.");
+        }
+        String subject="The weekend brings lots of price drops on a whole selection of dishes from "+restaurantName+
+                ".\nMake sure you check the discounts in the app and have something tasty for you today.\nStay safe. Let yover make your day better.";
+        for (CustomerDTO customerDTO:customerDTOS) {
+            RAOperationsService.sendSimpleMessage(customerDTO.getEmail(),"Cristian from yover.",subject);
+        }
+        return  ResponseEntity.status(httpStatus).body("The emails have been sent.");
+    }
+
 
 
 }
