@@ -30,6 +30,12 @@ public class RAOperationsService {
     @Autowired
     private JavaMailSender emailSender;
 
+    /**
+     *
+     * @param to receiver's email address.
+     * @param subject of the email.
+     * @param text representing the content of the email.
+     */
     public void sendSimpleMessage(
             String to, String subject, String text) {
 
@@ -42,6 +48,11 @@ public class RAOperationsService {
 
     }
 
+    /**
+     * This method adds a new instance of Restaurant Administrator in database.
+     * @param restaurantAdministratorDTO object containing information received from the client side.
+     * @return status message.
+     */
     public String createRA(RestaurantAdministratorDTO restaurantAdministratorDTO){
 
         String validityOfRAdata=AccountsValidator.isRAAccountValid(restaurantAdministratorDTO);
@@ -61,6 +72,12 @@ public class RAOperationsService {
             return validityOfRAdata;
         }
     }
+
+    /**
+     * This method adds a new Restaurant instance in database.
+     * @param restaurantDTO object containing information received from the client side.
+     * @return status message.
+     */
     public String addRestaurant(RestaurantDTO restaurantDTO){
             if(restaurantDatabaseOperations.findByName(restaurantDTO.getName()).isPresent()){
                 return "This restaurant name already exists.";
@@ -70,6 +87,12 @@ public class RAOperationsService {
                 return "You have successfully added the restaurant.";
             }
     }
+
+    /**
+     * This method adds a new Food instance in database.
+     * @param foodDTO object containing information received from the client side.
+     * @return  status message.
+     */
     public String addFood(FoodDTO foodDTO){
           Food food=restaurantRelatedObjectsMapper.fromFoodDTO(foodDTO);
            if(food!=null){
@@ -80,6 +103,13 @@ public class RAOperationsService {
                return "Internal server error. Contact support!";
            }
     }
+
+    /**
+     * This method retrieves the dishes of given category from a particular restaurant.
+     * @param restaurantName the name of the restaurant to be queried.
+     * @param foodCategory the category to select the dishes from.
+     * @return a list of the filtered dishes.
+     */
     public List<FoodDTO> getFoodWithKnownRestaurantAndCategory(String restaurantName, String foodCategory){
         Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByName(restaurantName);
         if(restaurant.isPresent()) {
@@ -88,6 +118,12 @@ public class RAOperationsService {
         }
         else return null;
     }
+
+    /**
+     * This method retrieves the dishes from a particular restaurant.
+     * @param restaurantName  the name of the restaurant to be queried.
+     * @return a list of the filtered dishes.
+     */
     public List<FoodDTO> getFoodFromRestaurant(String restaurantName){
         Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByName(restaurantName);
         if(restaurant.isPresent()) {
@@ -96,6 +132,13 @@ public class RAOperationsService {
         }
         else return null;
     }
+
+    /**
+     * Login process of the Restaurant Administrator.
+     * @param username
+     * @param password
+     * @return account data if the login process is successful.
+     */
     public RestaurantAdministratorDTO getRAwithUserAndPass(String username,String password){
         Optional<RestaurantAdministrator> RA=RADatabaseOperations.findByUsername(username);
         if(RA.isPresent()){
@@ -105,6 +148,12 @@ public class RAOperationsService {
         }
         return null;
     }
+
+    /**
+     * This method retrieves information about the restaurant of the logged in administrator.
+     * @param username
+     * @return restaurnt data as a RestaurantDTO instance.
+     */
     public RestaurantDTO getRestaurantByAdminUsername(String username){
         Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByRestaurantAdministratorUsername(username);
         if(restaurant.isPresent()){
@@ -114,14 +163,29 @@ public class RAOperationsService {
             return new RestaurantDTO("","",new HashSet<>(),"");
         }
     }
+
+    /**
+     *
+     * @return a list of all the delivery zones that are available.
+     */
     public List<String> getDeliveryZones(){
         Optional<List<DeliveryZone>> deliveryZones=RADatabaseOperations.findAllDeliveryZones();
         return deliveryZones.map(zones -> zones.stream().map(DeliveryZone::getName).collect(Collectors.toList())).orElse(null);
     }
+
+    /**
+     *
+     * @return a list of the existent food categories.
+     */
     public List<String> getFoodCategories(){
       return Arrays.stream(FoodCategory.values()).map(FoodCategory::getCode).toList();
 
     }
+
+    /**
+     *
+     * @return a list of all customers of the application.
+     */
     public List<CustomerDTO> getAllCustomers(){
         Iterable<Customer> customers= customerDatabaseOperations.findAll();
         ArrayList<Customer>  customerArrayList=new ArrayList<>();

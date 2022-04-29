@@ -25,6 +25,11 @@ public class CustomerOperationsService {
     private final RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
     private final String secretKey = "JHKLXABYZC!!!!";
 
+    /**
+     * Method that saves a new Customer account into the database, if the data is valid.
+     * @param customerDTO account information of a customer received from the client side.
+     * @return status message
+     */
     public String createCustomer(CustomerDTO customerDTO){
         String validityOfCustomerData=AccountsValidator.isCustomerAccountValid(customerDTO);
         if(validityOfCustomerData.equals("valid")) {
@@ -43,6 +48,13 @@ public class CustomerOperationsService {
             return validityOfCustomerData;
         }
     }
+
+    /**
+     *
+     * @param username
+     * @param password
+     * @return if registered in database, a CustomerDTO instance with given username and password.
+     */
     public CustomerDTO getCustomerwithUserAndPass(String username,String password){
         Optional<Customer> customer=customerDatabaseOperations.findByUsername(username);
         if(customer.isPresent()){
@@ -52,6 +64,10 @@ public class CustomerOperationsService {
         }
         return null;
     }
+
+    /**
+     * @return  all the existing restaurants from the database.
+     */
     public List<RestaurantDTO> getRestaurants(){
         Iterable<Restaurant> restaurants= restaurantDatabaseOperations.findAll();
         ArrayList<Restaurant>  restaurantArrayList=new ArrayList<>();

@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class PDFCreator {
+    /**
+     *
+     * @param filename the name of the file.
+     * @param menuItems the dishes from the restaurant's menu.
+     * @return status message.
+     */
     public static String menuToPDF(String filename, List<FoodDTO> menuItems){
        try {
            System.out.println(menuItems);

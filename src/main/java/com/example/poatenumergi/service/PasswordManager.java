@@ -14,6 +14,10 @@ public class PasswordManager {
     private static SecretKeySpec secretKey;
     private static byte[] key;
 
+    /**
+     *
+     * @param myKey String to be process in order to retrieve a key.
+     */
     private static void setKey(String myKey)
     {
         MessageDigest sha = null;
@@ -29,6 +33,12 @@ public class PasswordManager {
         }
     }
 
+    /**
+     *
+     * @param strToEncrypt String value to be encrypted.
+     * @param secret String value that represents the key used in encoding.
+     * @return the encrypted value.
+     */
     public static String encrypt(String strToEncrypt, String secret)
     {
         try
@@ -45,6 +55,12 @@ public class PasswordManager {
         return null;
     }
 
+    /**
+     *
+     * @param strToDecrypt String value to be decrypted.
+     * @param secret String value that represents the key used in decoding.
+     * @return  the decrypted value.
+     */
     public static String decrypt(String strToDecrypt, String secret)
     {
         try
