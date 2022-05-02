@@ -1,9 +1,6 @@
 package com.example.poatenumergi.ServicesTests;
 
-import com.example.poatenumergi.model.DeliveryZone;
-import com.example.poatenumergi.model.Restaurant;
-import com.example.poatenumergi.model.RestaurantAdministrator;
-import com.example.poatenumergi.model.RestaurantDTO;
+import com.example.poatenumergi.model.*;
 import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import com.example.poatenumergi.service.RestaurantRelatedObjectsMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +19,11 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+//@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class RestaurantRelatedObjectsMapperTest {
 
-    /*
-    <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>4.5.1</version>
-        </dependency>
-        */
-
-    @Autowired
+    @InjectMocks
     private  RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
 
     @Test
@@ -69,5 +59,41 @@ public class RestaurantRelatedObjectsMapperTest {
         }
 
 
+    }
+    @Test
+    @Transactional
+    public void invalidConversionOfRestaurantDTOtoRestaurant(){
+
+        String[] deliveryZones=new String[]{"Micro","Turda Noua","Poiana","Bai","Centru"};
+
+        for(String location:deliveryZones){
+            HashSet<String> locations=new HashSet<>();
+            locations.add(location);
+            RestaurantDTO restaurantDTO=new RestaurantDTO("","",locations,"admim");
+            assertNotNull(restaurantRelatedObjectsMapper.fromRestaurantDTO(restaurantDTO));
+        }
+
+
+    }
+    @Test
+    @Transactional
+    public void validConversionOfFoodDTOtoFood(){
+
+        FoodDTO validRestaurantValidCategory=new FoodDTO("name","Lunch","Las Vericus");
+        assertNotNull(restaurantRelatedObjectsMapper.fromFoodDTO(validRestaurantValidCategory));
+
+
+    }
+    @Test
+    @Transactional
+    public void invalidConversionOfFoodDTOtoFood(){
+        FoodDTO validRestaurantInvalidCategory=new FoodDTO("name","invalid_category","Las Vericus");
+        FoodDTO invalidRestaurantValidCategory=new FoodDTO("name","lunch","invalid_restaurant");
+        FoodDTO invalidRestaurantInvalidCategory=new FoodDTO("name","invalid_category","invalid_restaurant");
+
+
+        assertNotNull(restaurantRelatedObjectsMapper.fromFoodDTO(validRestaurantInvalidCategory));
+        assertNotNull(restaurantRelatedObjectsMapper.fromFoodDTO(invalidRestaurantValidCategory));
+        assertNotNull(restaurantRelatedObjectsMapper.fromFoodDTO(invalidRestaurantInvalidCategory));
     }
 }
