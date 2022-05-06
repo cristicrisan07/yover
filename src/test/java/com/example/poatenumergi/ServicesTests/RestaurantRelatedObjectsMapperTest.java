@@ -1,35 +1,49 @@
 package com.example.poatenumergi.ServicesTests;
 
 import com.example.poatenumergi.model.*;
+import com.example.poatenumergi.repository.RADatabaseOperations;
 import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import com.example.poatenumergi.service.RestaurantRelatedObjectsMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
+//import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+//import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-//@SpringBootTest
-@ExtendWith(MockitoExtension.class)
+//
+// @SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class RestaurantRelatedObjectsMapperTest {
-
-    @InjectMocks
     private  RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
+    private RestaurantDatabaseOperations restaurantDatabaseOperations;
+    private RADatabaseOperations raDatabaseOperations;
+    @Before
+    public void setup(){
+        restaurantDatabaseOperations=mock(RestaurantDatabaseOperations.class);
+         raDatabaseOperations=mock(RADatabaseOperations.class);
+            restaurantRelatedObjectsMapper=new RestaurantRelatedObjectsMapper(raDatabaseOperations,restaurantDatabaseOperations);
+    }
 
     @Test
     @Transactional
     public void validConversionOfRestaurantDTOtoRestaurant(){
-
         String[] deliveryZones=new String[]{"Andrei Muresanu",
                 "Becas" ,
                 "Borhanci" ,

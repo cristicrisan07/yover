@@ -5,6 +5,8 @@ import com.example.poatenumergi.repository.CustomerDatabaseOperations;
 import com.example.poatenumergi.repository.RADatabaseOperations;
 import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class CustomerOperationsService {
     private final RestaurantRelatedObjectsMapper restaurantRelatedObjectsMapper;
     private final String secretKey = "JHKLXABYZC!!!!";
 
+    private static Logger LOGGER = LoggerFactory.getLogger(CustomerOperationsService.class);
+
     /**
      * Method that saves a new Customer account into the database, if the data is valid.
      * @param customerDTO account information of a customer received from the client side.
@@ -35,13 +39,16 @@ public class CustomerOperationsService {
         if(validityOfCustomerData.equals("valid")) {
 
             if(customerDatabaseOperations.findByUsername(customerDTO.getUsername()).isPresent()){
+                LOGGER.info("The username: "+customerDTO.getUsername()+" is already taken.");
                 return "Username already taken.";
             }else{
                 if(customerDatabaseOperations.findByEmail(customerDTO.getEmail()).isPresent()){
+                    LOGGER.info("The email address: "+customerDTO.getEmail()+" is already taken.");
                     return "This email address is already used.";
                 }
             }
             customerDatabaseOperations.save(accountsMapper.fromDTOtoCustomer(customerDTO));
+
        return "The account has been successfully created.";
         }
         else{

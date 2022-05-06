@@ -3,6 +3,7 @@ package com.example.poatenumergi.service;
 import com.example.poatenumergi.model.*;
 import com.example.poatenumergi.repository.RADatabaseOperations;
 import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

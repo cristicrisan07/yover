@@ -15,6 +15,7 @@ import java.util.stream.Stream;
      */
         @Override
         public String convertToDatabaseColumn(FoodCategory category) {
+
             if (category == null) {
                 return null;
             }

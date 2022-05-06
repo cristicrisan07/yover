@@ -7,6 +7,8 @@ import com.example.poatenumergi.service.RAOperationsService;
 import com.fasterxml.jackson.core.JsonEncoding;
 import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,8 @@ import java.util.*;
 public class RAController {
     private final String secretKey = "JHKLXABYZC!!!!";
     private final RAOperationsService RAOperationsService;
+
+    private static Logger LOGGER = LoggerFactory.getLogger(RAController.class);
     @PostMapping("/addRA")
     public ResponseEntity<String> insertRA(@RequestBody RestaurantAdministratorDTO restaurantAdministratorDTO) {
         RestaurantAdministratorDTO RAwithEncryptedpassword=new RestaurantAdministratorDTO(restaurantAdministratorDTO.getUsername(), restaurantAdministratorDTO.getEmail(), PasswordManager.encrypt(restaurantAdministratorDTO.getPassword(),secretKey));
@@ -34,6 +38,10 @@ public class RAController {
         HttpStatus httpStatus = HttpStatus.OK;
         if (!status.equals("The account has been successfully created.")) {
            httpStatus= HttpStatus.NOT_ACCEPTABLE;
+
+        LOGGER.info("The username:"+restaurantAdministratorDTO.getUsername()+" or the email:"+restaurantAdministratorDTO.getEmail()+" is already taken.");
+        }else {
+        LOGGER.info("The restaurant administrator account with the username: " + restaurantAdministratorDTO.getUsername() + " and email: " + restaurantAdministratorDTO.getEmail() + " was successfully created.");
         }
             return ResponseEntity.status(httpStatus).body(status);
         }
@@ -43,6 +51,10 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(!status.equals("You have successfully added the restaurant.")){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
+            LOGGER.info(restaurantDTO.getRestaurantAdministratorUsername()+" failed to add the restaurant: "+restaurantDTO.getName()+" because a restaurant with this name already exists.");
+        }
+        else{
+            LOGGER.info(restaurantDTO.getRestaurantAdministratorUsername()+" has successfully added the restaurant named: "+restaurantDTO.getName());
         }
         return  ResponseEntity.status(httpStatus).body(status);
     }
@@ -53,6 +65,10 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(!status.equals("Food added successfully.")){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
+            LOGGER.info("An internal error occurred in RAOperationsService.");
+        }
+        else{
+            LOGGER.info("The dish with the name: "+ foodDTO.getName()+" has been successfully added in the menu of: "+foodDTO.getRestaurantName());
         }
         return  ResponseEntity.status(httpStatus).body(status);
     }
@@ -64,10 +80,11 @@ public class RAController {
         if(results.isEmpty()){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
             status="Unfortunately, at the moment we don't have any dish from this category available.";
+            LOGGER.info("There are no dishes from the category: "+foodCategory+ " available at the restaurant: " +restaurantName);
         }
-//        else {
-//            results.stream().map(FoodDTO::getName).forEach(System.out::println);
-//        }
+        else{
+            LOGGER.info("The dishes from the category: "+foodCategory+" of: "+restaurantName+" were successfully dispatched to client side.");
+        }
         return  ResponseEntity.status(httpStatus).body(status);
     }
     @GetMapping("/getFood/{restaurantName}")
@@ -78,7 +95,11 @@ public class RAController {
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
              ArrayList<FoodDTO> notFound= new ArrayList<>();
              notFound.add(new FoodDTO("","",""));
+             LOGGER.info("There are no dishes available at: "+restaurantName);
              return  ResponseEntity.status(httpStatus).body(notFound);
+        }
+        else{
+            LOGGER.info("All the dishes of: "+restaurantName+" were successfully dispatched to client side.");
         }
 
         return  ResponseEntity.status(httpStatus).body(results);
@@ -89,7 +110,11 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(RA==null){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
+            LOGGER.info("The username password combination of supposed restaurant administrator: "+username+" is invalid.");
             return ResponseEntity.status(httpStatus).body(new RestaurantAdministratorDTO("","",""));
+        }
+        else{
+            LOGGER.info("The restaurant administrator with the username: "+ username +" has successfully logged in.");
         }
         return ResponseEntity.status(httpStatus).body(RA);
     }
@@ -99,15 +124,23 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(Objects.equals(restaurantDTO.getName(), "")){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
+            LOGGER.info("Restaurant administrator: "+username+" doesn't have a restaurant.");
+        }
+        else{
+            LOGGER.info("The restaurant: "+restaurantDTO.getName()+" added by: "+username+" has been successfully dispatched to client side.");
         }
         return  ResponseEntity.status(httpStatus).body(restaurantDTO);
     }
     @GetMapping("/getDeliveryLocations")
-    public  ResponseEntity<List<String>> getFoodsWith(){
+    public  ResponseEntity<List<String>> getDeliveryLocations(){
         List<String> deliveryZones=RAOperationsService.getDeliveryZones();
         HttpStatus httpStatus=HttpStatus.OK;
         if(deliveryZones.isEmpty()){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
+            LOGGER.info("There are no delivery zones available at the moment.");
+        }
+        else{
+            LOGGER.info("The information about the delivery zones were dispatched to the client side.");
         }
         return  ResponseEntity.status(httpStatus).body(deliveryZones);
     }
@@ -117,6 +150,10 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(foodCategories.isEmpty()){
             httpStatus=HttpStatus.NOT_ACCEPTABLE;
+            LOGGER.info("There was an error in converting the food categories.");
+        }
+        else{
+            LOGGER.info("The information about the food categories were dispatched to the client side.");
         }
         return  ResponseEntity.status(httpStatus).body(foodCategories);
     }
@@ -127,17 +164,11 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(!stat.equals("Success")){
             httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
+            LOGGER.info("Could not retrieve the dishes of:"+restaurant);
             return ResponseEntity.status(httpStatus).body(stat);
         }
 
-            RAOperationsService.sendSimpleMessage("agletlaces@gmail.com","testMessage","papa bun de la vericu pwp varule.");
-
         File fileToSend=new File(restaurant+"_menu.pdf");
-//       HttpHeaders httpHeaders=new HttpHeaders();
-//       httpHeaders.add("Content-Type","application/octet-stream");
-//       httpHeaders.add("Content-Disposition","attachment; filename=\""+fileToSend.getName()+"\"");
-//
-//        return  ResponseEntity.status(httpStatus).headers(httpHeaders).contentLength(fileToSend.length()).body(fileToSend);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/octet-stream");
@@ -148,6 +179,8 @@ public class RAController {
 
         Path path = Paths.get(fileToSend.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        LOGGER.info("The PDF version of the menu was successfully generated and sent to the client-side.");
 
         return ResponseEntity.ok()
                 .headers(headers)
@@ -161,6 +194,7 @@ public class RAController {
         HttpStatus httpStatus=HttpStatus.OK;
         if(customerDTOS.isEmpty()){
             httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
+            LOGGER.info("There is no customer to send the advertising email to");
             return  ResponseEntity.status(httpStatus).body("Could not fetch the customers.");
         }
         String subject="The weekend brings lots of price drops on a whole selection of dishes from "+restaurantName+
@@ -168,6 +202,7 @@ public class RAController {
         for (CustomerDTO customerDTO:customerDTOS) {
             RAOperationsService.sendSimpleMessage(customerDTO.getEmail(),"Cristian from yover.",subject);
         }
+        LOGGER.info("The advertising emails for: "+restaurantName+" were successfully sent.");
         return  ResponseEntity.status(httpStatus).body("The emails have been sent.");
     }
 

@@ -7,6 +7,8 @@ import com.example.poatenumergi.repository.FoodDatabaseOperations;
 import com.example.poatenumergi.repository.RADatabaseOperations;
 import com.example.poatenumergi.repository.RestaurantDatabaseOperations;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -26,6 +28,8 @@ public class RAOperationsService {
     private final FoodDatabaseOperations foodDatabaseOperations;
     private final CustomerDatabaseOperations customerDatabaseOperations;
     private final String secretKey = "JHKLXABYZC!!!!";
+
+    private static Logger LOGGER = LoggerFactory.getLogger(RAOperationsService.class);
 
     @Autowired
     private JavaMailSender emailSender;
@@ -58,14 +62,18 @@ public class RAOperationsService {
         String validityOfRAdata=AccountsValidator.isRAAccountValid(restaurantAdministratorDTO);
         if(validityOfRAdata.equals("valid")) {
             if(RADatabaseOperations.findByUsername(restaurantAdministratorDTO.getUsername()).isPresent()){
+                LOGGER.info("The username:" +restaurantAdministratorDTO.getUsername() +" is already used.");
                 return "Username already taken.";
+
             }
             else{
                 if(RADatabaseOperations.findByEmail(restaurantAdministratorDTO.getEmail()).isPresent()){
+                    LOGGER.info("The email:" +restaurantAdministratorDTO.getEmail()+" is already used.");
                     return "This email address is already used.";
                 }
             }
             RADatabaseOperations.save(accountsMapper.fromDTOtoRA(restaurantAdministratorDTO));
+            LOGGER.info("The account with the username:" +restaurantAdministratorDTO.getUsername() +" and email: "+restaurantAdministratorDTO.getEmail()+" has been successfully created.");
             return "The account has been successfully created.";
         }
         else{
@@ -80,10 +88,12 @@ public class RAOperationsService {
      */
     public String addRestaurant(RestaurantDTO restaurantDTO){
             if(restaurantDatabaseOperations.findByName(restaurantDTO.getName()).isPresent()){
+                LOGGER.info("A restaurant named: "+restaurantDTO.getName()+" already exists.");
                 return "This restaurant name already exists.";
             }
             else{
                 restaurantDatabaseOperations.save(restaurantRelatedObjectsMapper.fromRestaurantDTO(restaurantDTO));
+                LOGGER.info("The restaurant named: "+restaurantDTO.getName()+" was successfully created.");
                 return "You have successfully added the restaurant.";
             }
     }
@@ -113,10 +123,14 @@ public class RAOperationsService {
     public List<FoodDTO> getFoodWithKnownRestaurantAndCategory(String restaurantName, String foodCategory){
         Optional<Restaurant> restaurant=restaurantDatabaseOperations.findByName(restaurantName);
         if(restaurant.isPresent()) {
+
             Optional<List<Food>> foodList=foodDatabaseOperations.findAllByRestaurantAndCategory(restaurant.get(),FoodCategory.valueOf(foodCategory));
             return foodList.map(foods -> foods.stream().map(restaurantRelatedObjectsMapper::toFoodDTO).toList()).orElse(null);
         }
-        else return null;
+
+        else{
+            LOGGER.info("Wrong restaurant name: "+ restaurantName);
+            return null;}
     }
 
     /**
@@ -130,7 +144,10 @@ public class RAOperationsService {
             Optional<List<Food>> foodList=foodDatabaseOperations.findAllByRestaurant(restaurant.get());
             return foodList.map(foods -> foods.stream().map(restaurantRelatedObjectsMapper::toFoodDTO).toList()).orElse(null);
         }
-        else return null;
+        else {
+            LOGGER.info("Wrong restaurant name: "+ restaurantName);
+            return null;
+        }
     }
 
     /**
@@ -145,7 +162,9 @@ public class RAOperationsService {
             if(Objects.equals(PasswordManager.decrypt(RA.get().getPassword(), secretKey), password)){
                 return accountsMapper.fromRAtoDTO(RA.get());
             }
+            LOGGER.info("Wrong password for: "+ username);
         }
+        LOGGER.info("Wrong username: "+ username);
         return null;
     }
 
@@ -160,6 +179,7 @@ public class RAOperationsService {
             return  restaurantRelatedObjectsMapper.fromRestaurantToDTO(restaurant.get());
         }
         else{
+            LOGGER.info("Restaurant administrator: "+username+" does not have a restaurant.");
             return new RestaurantDTO("","",new HashSet<>(),"");
         }
     }

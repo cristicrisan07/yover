@@ -5,12 +5,15 @@ import com.example.poatenumergi.model.FoodCategory;
 import com.example.poatenumergi.model.FoodDTO;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class PDFCreator {
+    private static Logger LOGGER = LoggerFactory.getLogger(PDFCreator.class);
     /**
      *
      * @param filename the name of the file.
@@ -47,9 +50,11 @@ public class PDFCreator {
            document.close();
        }
        catch (Exception e){
+           LOGGER.info("The file: "+filename+ "could not be created.");
            e.printStackTrace();
            return "Could not create PDF.";
        }
+
        return "Success";
     }
 }
